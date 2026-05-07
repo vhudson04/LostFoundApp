@@ -29,6 +29,7 @@ The app uses SQLite for local data persistence.
   - id (Primary Key)
   - title
   - name
+  - phone
   - location
   - description
   - post type (lost/found)
