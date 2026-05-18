@@ -1,6 +1,8 @@
 package com.example.lostfoundapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -15,12 +17,25 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.gms.location.Priority;
 
+//import com.android.volley.BuildConfig;
+import com.example.lostfoundapp.BuildConfig;
 import com.example.lostfoundapp.data.DatabaseHelper;
 import com.example.lostfoundapp.model.Item;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class CreateAdvert extends AppCompatActivity {
@@ -29,6 +44,10 @@ public class CreateAdvert extends AppCompatActivity {
     Uri selectedImageUri;
     ImageView previewImage;
     private ActivityResultLauncher<String> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> autocompleteLauncher;
+    FusedLocationProviderClient fusedLocationClient;
+    double selectedLatitude;
+    double selectedLongitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +61,8 @@ public class CreateAdvert extends AppCompatActivity {
         });
 
         db = new DatabaseHelper(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
 
         EditText itemInput = findViewById(R.id.itemInput);
         EditText nameInput = findViewById(R.id.nameInput);
@@ -50,6 +71,7 @@ public class CreateAdvert extends AppCompatActivity {
         EditText locationInput = findViewById(R.id.locationInput);
         Button saveButton = findViewById(R.id.saveButton);
         RadioGroup postTypeGroup = findViewById(R.id.postTypeGroup);
+        Button currentLocationButton = findViewById(R.id.currentLocationButton);
         Button uploadImageButton = findViewById(R.id.uploadImageButton);
         previewImage = findViewById(R.id.previewImage);
 
@@ -65,6 +87,60 @@ public class CreateAdvert extends AppCompatActivity {
         uploadImageButton.setOnClickListener(v -> {
             imagePickerLauncher.launch("image/*");
         });
+
+        //Get current location button logic
+        currentLocationButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{
+                                Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
+            }
+
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener(location -> {
+                if (location != null){
+                    selectedLatitude = location.getLatitude();
+                    selectedLongitude = location.getLongitude();
+                    locationInput.setText(selectedLatitude + ", " + selectedLongitude);
+                }
+            });
+        });
+
+        //autocomplete feature
+        autocompleteLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+
+                        Place place = Autocomplete.getPlaceFromIntent(data);
+
+                        if (place.getLatLng() != null) {
+                            selectedLatitude = place.getLatLng().latitude;
+                            selectedLongitude = place.getLatLng().longitude;
+                        }
+
+                        locationInput.setText(place.getAddress());
+                    }
+                });
+
+        locationInput.setOnClickListener(v -> {
+            List<Place.Field> fields =
+                    Arrays.asList(Place.Field.NAME,
+                            Place.Field.LAT_LNG,
+                            Place.Field.ADDRESS);
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.OVERLAY,
+                    fields).build(this);
+
+            autocompleteLauncher.launch(intent);
+        });
+
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,6 +177,8 @@ public class CreateAdvert extends AppCompatActivity {
                 item.setPostType(postType);
                 item.setDatePosted(timestamp);
                 item.setImageUri(selectedImageUri.toString());
+                item.setLatitude(selectedLatitude);
+                item.setLongitude(selectedLongitude);
 
                 long result = db.insertAdvert(item);
                 if (result > 0)

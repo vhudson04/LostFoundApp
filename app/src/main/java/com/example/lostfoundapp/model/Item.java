@@ -11,6 +11,8 @@ public class Item {
     private String postType;
     private String imageUri;
     private long datePosted;
+    private double latitude;
+    private double longitude;
 
     public Item(String item_name, String name_of_poster, String phone, String description, String location) {
         //this.item_id = item_id;
@@ -92,4 +94,12 @@ public class Item {
     public void setDatePosted(long datePosted) {
         this.datePosted = datePosted;
     }
+
+    public double getLatitude() {return latitude;}
+
+    public void setLatitude(double latitude) {this.latitude = latitude;}
+
+    public double getLongitude() {return longitude;}
+
+    public void setLongitude(double longitude) {this.longitude = longitude;}
 }

@@ -30,4 +30,11 @@
         android:layout_margin="16dp"
         android:text="Show All Lost &amp; Found Items" />
 
+    <Button
+        android:id="@+id/locationMapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Show On Map" />
+
 </LinearLayout>

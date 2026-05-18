@@ -2,7 +2,7 @@ package com.example.lostfoundapp.util;
 
 public class Util {
 
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "item_db";
     public static final String TABLE_NAME = "items";
 
@@ -15,4 +15,6 @@ public class Util {
     public static final String POST_TYPE = "post_type";
     public static final String IMAGE_URI = "image_uri";
     public static final String DATE_POSTED = "date_posted";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
 }

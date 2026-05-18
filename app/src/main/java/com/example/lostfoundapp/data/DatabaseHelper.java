@@ -29,7 +29,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + Util.LOCATION + " TEXT, "
                 + Util.POST_TYPE + " TEXT, "
                 + Util.IMAGE_URI + " TEXT, "
-                + Util.DATE_POSTED + " INTEGER)";
+                + Util.DATE_POSTED + " INTEGER, "
+                + Util.LATITUDE + " REAL, "
+                + Util.LONGITUDE + " REAL)";
 
 
         //db = new DatabaseHelper(this);
@@ -61,6 +63,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(Util.POST_TYPE, item.getPostType());
         contentValues.put(Util.IMAGE_URI, item.getImageUri());
         contentValues.put(Util.DATE_POSTED, item.getDatePosted());
+        contentValues.put(Util.LATITUDE, item.getLatitude());
+        contentValues.put(Util.LONGITUDE, item.getLongitude());
 
         long newRowId = db.insert(Util.TABLE_NAME, null, contentValues);
         db.close();

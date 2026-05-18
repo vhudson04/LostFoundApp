@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    public Button createAdvert, showAdverts;
+    public Button createAdvert, showAdverts, locationMapButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         createAdvert = findViewById(R.id.createAdvertButton);
         showAdverts = findViewById(R.id.showAdverts);
+        locationMapButton = findViewById(R.id.locationMapButton);
 
         //clicking create advert button, moving to CreateAdvert activity
         createAdvert.setOnClickListener(new View.OnClickListener() {
@@ -45,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, LostFoundItems.class);
                 startActivity(intent);
             }
+        });
+
+        locationMapButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, MapsActivity.class));
         });
 
     }
